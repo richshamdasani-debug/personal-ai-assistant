@@ -1,0 +1,30 @@
+{
+  "name": "personal-ai-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Managed OpenClaw hosting — personal AI agents for non-technical users via Telegram/WhatsApp/Web",
+  "workspaces": [
+    "app",
+    "api",
+    "agents"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=api\" \"npm run dev --workspace=app\" \"npm run dev --workspace=agents\"",
+    "dev:api": "npm run dev --workspace=api",
+    "dev:app": "npm run dev --workspace=app",
+    "dev:agents": "npm run dev --workspace=agents",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

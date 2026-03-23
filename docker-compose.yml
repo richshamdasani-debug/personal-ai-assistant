@@ -1,0 +1,109 @@
+version: "3.9"
+
+# ─── Personal AI Assistant — Local Dev Stack ─────────────────────────────────
+# Runs the frontend, backend API, Redis, and a sample agent container.
+# Production agent containers are spawned dynamically via the provisioner.
+
+services:
+  # ── Next.js Frontend ─────────────────────────────────────────────────────
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:4000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - pai-network
+
+  # ── Express API ──────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - API_PORT=4000
+      - API_SECRET_KEY=${API_SECRET_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
+      - REDIS_URL=redis://redis:6379
+      - MAX_AGENT_CONTAINERS=${MAX_AGENT_CONTAINERS:-10}
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      # Mount Docker socket so the API can spawn agent containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - redis
+    networks:
+      - pai-network
+
+  # ── Redis (message queue + pub/sub for agent ↔ channel routing) ──────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - pai-network
+
+  # ── Sample Agent Container (one per user in production) ──────────────────
+  # In production these are spawned dynamically by the provisioner service.
+  # This container is for local testing with a hardcoded USER_ID.
+  agent-sample:
+    build:
+      context: ./agents
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - NODE_ENV=development
+      - USER_ID=local-test-user
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - ./agents:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - pai-network
+    # Agents are intentionally resource-constrained per container
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+networks:
+  pai-network:
+    driver: bridge
+
+volumes:
+  redis-data:
