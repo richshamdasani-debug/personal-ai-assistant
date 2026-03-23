@@ -289,13 +289,61 @@ Price anchored on **value delivered, not cost**. Our cost per user (infra + API)
 
 Reference points users have in mind:
 - ChatGPT Plus: $20/month (reactive chat)
+- Hostinger VPS + OpenClaw: $8.99/month (self-managed)
 - Human VA: $400–2,000/month
 - Notion AI: $10/month (document tool, not agent)
-- 1Password: $5/month (utility)
+- 1PASSWORD: $5/month (utility)
 
 Our pricing sits at the "serious tool" level — above utilities, well below human help.
 
+### Competitive Response to Hostinger (March 2026)
+
+Hostinger launched one-click OpenClaw VPS at $8.99/month. This **validates the market** but targets a fundamentally different customer. Their user knows what a VPS, Docker, and SSH are. Our user doesn't — and doesn't want to learn.
+
+**Our response:** Add a Self-Hosted tier to capture the tech-savvy segment AND use it as a funnel into managed tiers.
+
+---
+
+### Two-Track Product Model (WordPress.org vs WordPress.com Strategy)
+
+```
+TRACK 1: Self-Hosted (like Hostinger)        TRACK 2: Fully Managed (our core)
+─────────────────────────────────────        ──────────────────────────────────
+User runs their own VPS                      We run everything
+$9/mo (competitive with Hostinger)           $15–60/mo
+User manages updates, backups, API keys      Zero maintenance, auto-updates
+Full control, full responsibility            60-second setup, 24/7 support
+→ Funnel: "Too much work, upgrade me"        → 79% gross margin
+```
+
+The self-hosted tier is a **top-of-funnel acquisition tool**, not a revenue engine. ~20% of self-hosted users upgrade to managed within 90 days (industry benchmark from Ghost.org).
+
 ### Tier Structure
+
+---
+
+#### 🔧 Self-Hosted — $9/month
+
+**Target user:** Tech-savvy developer or power user who wants full control and is comfortable with VPS management.
+
+**What we provide:**
+- One-click Docker template (same as Hostinger, but ours)
+- Pre-configured OpenClaw setup script
+- Documentation + video setup guide
+- Access to our agent library (install your own agents)
+- Community Discord support
+- Updates and security patches (automated via script)
+
+**What they manage:**
+- Their own VPS (DigitalOcean, Hetzner, Hostinger, etc.)
+- Backups, uptime, API key management
+- Telegram/WhatsApp bot setup
+
+**Our cost:** Near zero — just hosting docs + a Discord. Pure margin.
+
+**The funnel math:** If we get 500 self-hosted users at $9/mo = $4,500 MRR. When 20% upgrade to Starter+ = 100 users × $15+ = $1,500+ additional MRR. Plus community grows → SEO → organic acquisition.
+
+**Psychology:** Developers trust tools they control. Self-hosted users become **advocates** who recommend us in tech communities (Reddit, HN, ProductHunt). This is free marketing.
 
 ---
 
