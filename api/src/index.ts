@@ -17,6 +17,7 @@ import { agentRouter } from "./routes/agents.js";
 import { billingRouter } from "./routes/billing.js";
 import { usersRouter } from "./routes/users.js";
 import { webhooksRouter } from "./routes/webhooks.js";
+import { telegramRouter } from "./routes/telegram.js";
 
 const app = express();
 const PORT = process.env.API_PORT ?? 4000;
@@ -35,6 +36,9 @@ app.use(
   "/api/webhooks/stripe",
   express.raw({ type: "application/json" })
 );
+
+// ── Telegram webhook — dedicated router with rich response logic ─────────────
+app.use("/api/webhooks/telegram", telegramRouter);
 
 // ── Body parsing ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "1mb" }));
