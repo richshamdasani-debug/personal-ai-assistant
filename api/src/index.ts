@@ -15,6 +15,8 @@ import rateLimit from "express-rate-limit";
 
 import { agentRouter } from "./routes/agents.js";
 import { billingRouter } from "./routes/billing.js";
+import { botsRouter } from "./routes/bots.js";
+import { tradingRouter } from "./routes/trading.js";
 import { usersRouter } from "./routes/users.js";
 import { webhooksRouter } from "./routes/webhooks.js";
 import { telegramRouter } from "./routes/telegram.js";
@@ -60,6 +62,9 @@ app.use("/api/users", usersRouter);
 app.use("/api/agents", agentRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/webhooks", webhooksRouter);
+app.use("/api/bots", botsRouter);
+app.use("/api/trading", tradingRouter);
+app.use("/api/leaderboard", tradingRouter);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => {
