@@ -139,7 +139,7 @@ export default function TradePage() {
     setLoadingCandles(true);
     try {
       const res = await fetch(
-        `http://localhost:4000/api/trading/candles/${sym}?interval=${tf}&lookback=200`
+        `${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/trading/candles/${sym}?interval=${tf}&lookback=200`
       );
       if (res.ok) {
         const data = await res.json();

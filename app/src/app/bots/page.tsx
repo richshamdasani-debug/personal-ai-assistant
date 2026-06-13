@@ -59,7 +59,7 @@ const MOCK_BOTS: Bot[] = [
 
 async function fetchBots(token: string): Promise<Bot[]> {
   try {
-    const res = await fetch("http://localhost:4000/api/bots", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/bots`, {
       headers: { Authorization: `Bearer ${token}` },
       next: { revalidate: 0 },
     });
@@ -74,7 +74,7 @@ async function fetchBots(token: string): Promise<Bot[]> {
 
 async function fetchBtcPrice(): Promise<number | null> {
   try {
-    const res = await fetch("http://localhost:4000/api/trading/price/BTC", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/trading/price/BTC`, {
       next: { revalidate: 30 },
     });
     if (!res.ok) return null;

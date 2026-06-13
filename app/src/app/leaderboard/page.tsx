@@ -156,7 +156,7 @@ const MOCK_BOTS: LeaderboardBot[] = [
 
 async function fetchLeaderboard(): Promise<LeaderboardBot[]> {
   try {
-    const res = await fetch("http://localhost:4000/api/leaderboard", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/leaderboard`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return MOCK_BOTS;
@@ -170,7 +170,7 @@ async function fetchLeaderboard(): Promise<LeaderboardBot[]> {
 
 async function fetchBtcPrice(): Promise<number | null> {
   try {
-    const res = await fetch("http://localhost:4000/api/trading/price/BTC", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/trading/price/BTC`, {
       next: { revalidate: 30 },
     });
     if (!res.ok) return null;

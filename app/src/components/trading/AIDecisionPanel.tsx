@@ -166,7 +166,7 @@ export default function AIDecisionPanel({
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:4000/api/bots/${botId}/decisions`
+          `${process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000"}/api/bots/${botId}/decisions`
         );
         if (res.ok) {
           const data = await res.json();

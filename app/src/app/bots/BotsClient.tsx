@@ -1,11 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import type { Bot } from "./page";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const MODELS = [
+const BOT_API_URL = process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8000";
+
+const LLM_PROVIDERS = [
+  { value: "ollama", label: "Ollama (free, local — no API key needed)" },
+  { value: "anthropic", label: "Anthropic (requires API key)" },
+];
+
+const OLLAMA_MODELS = [
+  { value: "gemma3:27b", label: "gemma3:27b (default, recommended)" },
+  { value: "gemma3:12b", label: "gemma3:12b" },
+  { value: "llama3.2", label: "llama3.2" },
+  { value: "mistral", label: "mistral" },
+  { value: "qwen2.5:14b", label: "qwen2.5:14b" },
+];
+
+const ANTHROPIC_MODELS = [
   { value: "claude-haiku-4-5-20251001", label: "claude-haiku-4-5" },
   { value: "claude-sonnet-4-6", label: "claude-sonnet-4-6" },
   { value: "claude-opus-4-8", label: "claude-opus-4-8" },
@@ -65,29 +81,35 @@ function shortModel(m: string) {
 interface CreateBotForm {
   handle: string;
   name: string;
+  llmProvider: "ollama" | "anthropic";
   model: string;
   symbol: string;
   riskMode: "conservative" | "moderate" | "aggressive";
   maxPositionUsd: string;
   systemPrompt: string;
+  walletAddress: string;
 }
 
 const DEFAULT_FORM: CreateBotForm = {
   handle: "",
   name: "",
-  model: "claude-haiku-4-5-20251001",
+  llmProvider: "ollama",
+  model: "gemma3:27b",
   symbol: "BTC",
   riskMode: "moderate",
   maxPositionUsd: "10000",
   systemPrompt: "",
+  walletAddress: "",
 };
 
 function CreateBotModal({
   onClose,
   onCreate,
+  sessionToken,
 }: {
   onClose: () => void;
   onCreate: (bot: Bot) => void;
+  sessionToken: string;
 }) {
   const [form, setForm] = useState<CreateBotForm>(DEFAULT_FORM);
   const [loading, setLoading] = useState(false);
@@ -95,6 +117,14 @@ function CreateBotModal({
 
   const set = <K extends keyof CreateBotForm>(k: K, v: CreateBotForm[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  const handleProviderChange = (provider: "ollama" | "anthropic") => {
+    const defaultModel =
+      provider === "ollama" ? OLLAMA_MODELS[0].value : ANTHROPIC_MODELS[0].value;
+    setForm((f) => ({ ...f, llmProvider: provider, model: defaultModel }));
+  };
+
+  const modelOptions = form.llmProvider === "ollama" ? OLLAMA_MODELS : ANTHROPIC_MODELS;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,17 +137,22 @@ function CreateBotModal({
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/api/bots", {
+      const res = await fetch(`${BOT_API_URL}/api/bots`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+        },
         body: JSON.stringify({
           handle: form.handle,
           name: form.name,
+          llmProvider: form.llmProvider,
           model: form.model,
           symbol: form.symbol,
           riskMode: form.riskMode,
           maxPositionUsd: parseFloat(form.maxPositionUsd),
           systemPrompt: form.systemPrompt || undefined,
+          walletAddress: form.walletAddress || undefined,
         }),
       });
 
@@ -218,6 +253,35 @@ function CreateBotModal({
             </div>
           </div>
 
+          {/* LLM Provider */}
+          <div>
+            <label className="block text-xs text-slate-400 font-semibold mb-1.5 uppercase tracking-wide">
+              LLM Provider
+            </label>
+            <select
+              value={form.llmProvider}
+              onChange={(e) => handleProviderChange(e.target.value as "ollama" | "anthropic")}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              {LLM_PROVIDERS.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+            {form.llmProvider === "ollama" && (
+              <p className="text-xs text-green-400/80 mt-1.5">
+                Ollama runs locally — no API key required and completely free.
+              </p>
+            )}
+            {form.llmProvider === "anthropic" && (
+              <p className="text-xs text-amber-400/80 mt-1.5">
+                Requires an Anthropic API key configured on the server.
+              </p>
+            )}
+          </div>
+
+          {/* Model (depends on provider) */}
           <div>
             <label className="block text-xs text-slate-400 font-semibold mb-1.5 uppercase tracking-wide">
               Model
@@ -227,7 +291,7 @@ function CreateBotModal({
               onChange={(e) => set("model", e.target.value)}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
             >
-              {MODELS.map((m) => (
+              {modelOptions.map((m) => (
                 <option key={m.value} value={m.value}>
                   {m.label}
                 </option>
@@ -284,6 +348,21 @@ function CreateBotModal({
               value={form.maxPositionUsd}
               onChange={(e) => set("maxPositionUsd", e.target.value)}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            />
+          </div>
+
+          {/* Wallet Address */}
+          <div>
+            <label className="block text-xs text-slate-400 font-semibold mb-1.5 uppercase tracking-wide">
+              Wallet Address{" "}
+              <span className="text-slate-600 normal-case font-normal">(optional — for viewing HL positions)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="0x..."
+              value={form.walletAddress}
+              onChange={(e) => set("walletAddress", e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
             />
           </div>
 
@@ -442,6 +521,9 @@ function BotCard({
 // ── Main Client Component ──────────────────────────────────────────────────
 
 export default function BotsClient({ initialBots }: { initialBots: Bot[] }) {
+  const { data: session } = useSession();
+  const sessionToken = (session as { accessToken?: string } | null)?.accessToken ?? "";
+
   const [bots, setBots] = useState<Bot[]>(initialBots);
   const [showCreate, setShowCreate] = useState(false);
 
@@ -454,8 +536,9 @@ export default function BotsClient({ initialBots }: { initialBots: Bot[] }) {
     );
 
     try {
-      await fetch(`http://localhost:4000/api/bots/${id}/${action}`, {
+      await fetch(`${BOT_API_URL}/api/bots/${id}/${action}`, {
         method: "POST",
+        headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {},
       });
     } catch {
       // Keep optimistic state
@@ -465,7 +548,10 @@ export default function BotsClient({ initialBots }: { initialBots: Bot[] }) {
   const handleDelete = async (id: string) => {
     setBots((prev) => prev.filter((b) => b.id !== id));
     try {
-      await fetch(`http://localhost:4000/api/bots/${id}`, { method: "DELETE" });
+      await fetch(`${BOT_API_URL}/api/bots/${id}`, {
+        method: "DELETE",
+        headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {},
+      });
     } catch {
       // Already removed from UI
     }
@@ -519,6 +605,7 @@ export default function BotsClient({ initialBots }: { initialBots: Bot[] }) {
         <CreateBotModal
           onClose={() => setShowCreate(false)}
           onCreate={handleCreate}
+          sessionToken={sessionToken}
         />
       )}
     </>
