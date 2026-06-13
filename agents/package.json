@@ -12,8 +12,9 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
     "@supabase/supabase-js": "^2.43.4",
-    "redis": "^4.6.14",
+    "ethers": "^6.16.0",
     "node-telegram-bot-api": "^0.66.0",
+    "redis": "^4.6.14",
     "twilio": "^5.2.3",
     "zod": "^3.23.8"
   },
