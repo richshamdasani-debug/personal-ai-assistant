@@ -47,7 +47,6 @@ export default function TradingChart({ candles, symbol, interval }: TradingChart
         },
         timeScale: {
           borderColor: "#1e293b",
-          textColor: "#94a3b8",
           timeVisible: true,
           secondsVisible: false,
         },
@@ -67,9 +66,10 @@ export default function TradingChart({ candles, symbol, interval }: TradingChart
 
       if (candles.length > 0) {
         const sortedCandles = [...candles].sort((a, b) => a.time - b.time);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         candleSeries.setData(
           sortedCandles.map((c) => ({
-            time: c.time as Parameters<typeof candleSeries.setData>[0][0]["time"],
+            time: c.time as any,
             open: c.open,
             high: c.high,
             low: c.low,

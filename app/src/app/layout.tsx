@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Personal AI Assistant — Your 24/7 AI Agent",
+  title: "VTX Macro — AI Trading Platform",
   description:
-    "Get your own personal AI assistant running 24/7 on Telegram, WhatsApp, or the web. No setup required. Starting at $15/mo.",
+    "LLM-powered Hyperliquid trading bots. Run AI agents that trade crypto 24/7.",
   openGraph: {
-    title: "Personal AI Assistant",
-    description: "Your own AI agent, always on.",
+    title: "VTX Macro",
+    description: "AI-powered trading bots on Hyperliquid.",
     type: "website",
   },
 };
@@ -18,8 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="h-full">
+      <body className="h-full bg-slate-950 text-white antialiased">
+        {children}
+      </body>
     </html>
   );
 }
