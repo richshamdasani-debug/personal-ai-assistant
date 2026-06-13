@@ -18,12 +18,12 @@ interface TradingChartProps {
 
 export default function TradingChart({ candles, symbol, interval }: TradingChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<ReturnType<typeof import("lightweight-charts")["createChart"]> | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
     let chart: ReturnType<typeof import("lightweight-charts")["createChart"]> | null = null;
+    let resizeObserver: ResizeObserver | null = null;
 
     import("lightweight-charts").then(({ createChart, ColorType }) => {
       if (!chartContainerRef.current) return;
@@ -55,9 +55,8 @@ export default function TradingChart({ candles, symbol, interval }: TradingChart
         height: chartContainerRef.current.clientHeight,
       });
 
-      chartRef.current = chart;
-
-      const candleSeries = chart.addSeries({ type: "Candlestick" } as Parameters<typeof chart.addSeries>[0], {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const candleSeries = (chart as any).addCandlestickSeries({
         upColor: "#22c55e",
         downColor: "#ef4444",
         borderUpColor: "#22c55e",
@@ -80,8 +79,7 @@ export default function TradingChart({ candles, symbol, interval }: TradingChart
         chart.timeScale().fitContent();
       }
 
-      // Resize observer
-      const resizeObserver = new ResizeObserver(() => {
+      resizeObserver = new ResizeObserver(() => {
         if (chartContainerRef.current && chart) {
           chart.resize(
             chartContainerRef.current.clientWidth,
@@ -91,16 +89,13 @@ export default function TradingChart({ candles, symbol, interval }: TradingChart
       });
 
       resizeObserver.observe(chartContainerRef.current);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
     });
 
     return () => {
+      resizeObserver?.disconnect();
       if (chart) {
         chart.remove();
-        chartRef.current = null;
+        chart = null;
       }
     };
   }, [candles]);

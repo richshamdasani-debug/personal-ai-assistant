@@ -109,16 +109,13 @@ function DecisionCard({ decision }: { decision: Decision }) {
       ? `+${decision.crvScore}`
       : String(decision.crvScore);
 
-  const isLong = decision.decision === "buy";
-  const truncated =
-    decision.reasoning.length > 140 && !expanded;
+  const truncated = decision.reasoning.length > 140 && !expanded;
   const displayText = truncated
     ? decision.reasoning.slice(0, 140) + "..."
     : decision.reasoning;
 
   return (
     <div className={`rounded-lg border p-3 ${colors.bg}`}>
-      {/* Header */}
       <div className="flex items-center justify-between mb-1.5">
         <span className={`font-mono font-bold text-sm ${colors.header}`}>
           CRV: {label}-{Math.abs(decision.crvScore)}
@@ -128,7 +125,6 @@ function DecisionCard({ decision }: { decision: Decision }) {
         </span>
       </div>
 
-      {/* Meta */}
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xs text-slate-500">{formatTimeAgo(decision.createdAt)}</span>
         <span className="text-slate-700">·</span>
@@ -139,7 +135,6 @@ function DecisionCard({ decision }: { decision: Decision }) {
         </span>
       </div>
 
-      {/* Reasoning */}
       <p className="text-xs text-slate-400 leading-relaxed">{displayText}</p>
       {decision.reasoning.length > 140 && (
         <button
@@ -194,7 +189,6 @@ export default function AIDecisionPanel({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Panel header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
         <div className="flex items-center gap-2">
           <span className="text-white font-semibold text-sm">AI Decisions</span>
@@ -210,26 +204,22 @@ export default function AIDecisionPanel({
         </div>
       </div>
 
-      {/* Decision list */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 min-h-0">
         {decisions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-2">
             <p className="text-slate-500 text-sm">No decisions yet</p>
-            <p className="text-slate-600 text-xs">
-              Start a bot to see AI decisions here
-            </p>
+            <p className="text-slate-600 text-xs">Start a bot to see AI decisions here</p>
           </div>
         ) : (
           decisions.map((d) => <DecisionCard key={d.id} decision={d} />)
         )}
       </div>
 
-      {/* Footer */}
       <div className="px-4 py-2 border-t border-slate-800 shrink-0">
         <p className="text-xs text-slate-600">
           Auto-refreshes every 30s
           {botId && (
-            <span className="ml-1 text-indigo-600">· Live feed active</span>
+            <span className="ml-1 text-indigo-600"> · Live feed active</span>
           )}
         </p>
       </div>
