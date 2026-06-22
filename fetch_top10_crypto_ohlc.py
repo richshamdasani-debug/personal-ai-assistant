@@ -1,9 +1,16 @@
 """
 Fetches 5 years of daily OHLC data for the top 10 cryptocurrencies
-(by CoinMarketCap ranking) via CoinGecko's free public API.
+(by CoinMarketCap ranking) via CoinGecko's free public API (no key needed).
 
 Top 10 CMC ranking (June 2026):
   BTC, ETH, USDT, BNB, SOL, XRP, DOGE, ADA, TRX, AVAX
+
+Output files: BTC_Daily_OHLC_5Years.csv, ETH_Daily_OHLC_5Years.csv, ...
+Columns: Date, Open, High, Low, Close
+
+NOTE: This script requires unrestricted outbound internet access to
+api.coingecko.com. Run locally — cloud/sandboxed environments may
+block external API endpoints.
 """
 
 import csv
